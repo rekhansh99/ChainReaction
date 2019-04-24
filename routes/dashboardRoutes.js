@@ -1,14 +1,12 @@
 const express = require('express');
 
+const isAuth = require('../middleware/is-auth');
+
 const router = express.Router();
 
-router.get('/', (req, res, next) => {
-  if (req.user)
-    return res.redirect('/dashboard');
-  res.render('login');
-});
+router.get('/', isAuth);
 
-router.get('/dashboard', (req, res, next) => {
+router.get('/dashboard', isAuth, (req, res, next) => {
   res.render('dashboard', { user: req.user });
 });
 

@@ -4,61 +4,9 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const MongoDBStore = require('connect-mongodb-session')(session);
 const passport = require('passport');
-const FBStrategy = require('passport-facebook');
-const imagetobase64 = require('image-to-base64');
 
 const authRouter = require('./routes/authRoutes');
 const dashboardRouter = require('./routes/dashboardRoutes');
-
-const User = require('./models/user');
-const config = require('./config.js');
-
-passport.use(new FBStrategy({
-  clientID: config.key,
-  clientSecret: config.secret,
-  callbackURL: config.redirect,
-  profileFields: ['id', 'name', 'picture.type(large)', 'friends'],
-  enableProof: true
-}, (accessToken, refreshToken, profile, done) => {
-  // console.log(JSON.stringify(profile, null, 4));
-
-  User.findById(profile.id, (err, user) => {
-    if (err) return done(err);
-
-    if (!user)
-      user = new User({ _id: profile.id });
-
-    user.name = profile.name.givenName + ' ' + profile.name.familyName;
-    user.friends = profile._json.friends.data;
-
-    const promises = [];
-
-    user.friends.forEach(friend => promises.push(User.updateOne({ _id: friend.id },
-      { $addToSet: { friends: { name: user.name, id: user.id } } })));
-
-    promises.push(imagetobase64(profile.photos[0].value));
-
-    Promise.all(promises).then(img => {
-      user.picture = 'data:image/jpeg;base64,' + img;
-
-      user.save((err, user) => {
-        if (err) return done(err);
-        console.log(JSON.stringify(user, null, 4));
-        done(null, user);
-      });
-    });
-  });
-}));
-
-passport.serializeUser((user, done) => {
-  console.log('Inside serializeUser callback.');
-  done(null, user._id);
-});
-
-passport.deserializeUser((id, done) => {
-  console.log('Inside deserializeUser callback.');
-  User.findById(id, (err, user) => done(err, user));
-});
 
 const app = express();
 
