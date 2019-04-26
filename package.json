@@ -11,12 +11,13 @@
     "express-session": "^1.15.6",
     "image-to-base64": "^2.0.1",
     "mongoose": "^5.4.3",
-    "nodemon": "^1.18.9",
     "passport": "^0.4.0",
     "passport-facebook": "^2.1.1",
     "socket.io": "^2.2.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "nodemon": "^1.18.9"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon app.js"

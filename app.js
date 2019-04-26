@@ -2,11 +2,30 @@ const express = require('express');
 const session = require('express-session');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
-const MongoDBStore = require('connect-mongodb-session')(session);
 const passport = require('passport');
+const FBStrategy = require('passport-facebook');
+
+const store = require('./controllers/sessionController').createSessionStore(session);
+const io = require('./socket');
 
 const authRouter = require('./routes/authRoutes');
 const dashboardRouter = require('./routes/dashboardRoutes');
+
+const User = require('./models/user');
+const authController = require('./controllers/authController');
+const config = require('./config');
+
+passport.use(new FBStrategy({
+  clientID: config.key,
+  clientSecret: config.secret,
+  callbackURL: config.redirect,
+  profileFields: ['id', 'name', 'picture.type(large)', 'friends'],
+  enableProof: true
+}, authController.verifyUser));
+
+passport.serializeUser((user, done) => done(null, user._id));
+
+passport.deserializeUser((id, done) => User.findById(id, (err, user) => done(err, user)));
 
 const app = express();
 
@@ -17,10 +36,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 app.use(session({
-  store: new MongoDBStore({
-    uri: 'mongodb://localhost:27017/ChainReaction',
-    collection: 'sessions'
-  }),
+  store: store,
   secret: 'keyboard cat',
   resave: false,
   saveUninitialized: false,
@@ -35,5 +51,8 @@ app.use(dashboardRouter);
 app.use('/auth', authRouter);
 
 mongoose.connect('mongodb://localhost:27017/ChainReaction', { useNewUrlParser: true })
-  .then(result => app.listen(3000, () => console.log('Listening on localhost:3000')))
+  .then(result => {
+    const server = app.listen(3000, () => console.log('Listening on localhost:3000'));
+    io.init(server);
+  })
   .catch(err => console.log(err));

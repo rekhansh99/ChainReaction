@@ -7,5 +7,3 @@ socket.on('connect', () => {
 socket.on('message', data => {
   console.log(data);
 });
-
-socket.emit('new player');
