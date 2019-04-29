@@ -11,9 +11,15 @@
 </head>
 
 <body>
-  <h1>Dashboard</h1>
-  <img src="<%= user.picture %>" alt="profile_pic">
-  <p><%= user.name %></p>
+  <div id="profile">
+    <img src="<%= picture %>" alt="profile_pic">
+    <p><%= name %></p>
+  </div>
+  <ul id="friends">
+    <% friends.forEach(friend => { %>
+    <li class="<%= friend.status %>" id="<%= friend.id %>"><%= friend.name %></li>
+    <% }); %>
+  </ul>
   <hr>
 </body>
 
