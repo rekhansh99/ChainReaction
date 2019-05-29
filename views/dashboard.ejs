@@ -6,6 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Dashboard</title>
+  <link href="https://fonts.googleapis.com/css?family=Gugi" rel="stylesheet">
+  <link type="text/css" rel="stylesheet" href="/css/main.css">
   <script src="/socket.io/socket.io.js"></script>
   <script src="/js/socket.js"></script>
 </head>
@@ -15,12 +17,12 @@
     <img src="<%= picture %>" alt="profile_pic">
     <p><%= name %></p>
   </div>
+  <hr>
   <ul id="friends">
     <% friends.forEach(friend => { %>
-    <li class="<%= friend.status %>" id="<%= friend.id %>"><%= friend.name %></li>
+    <li class="<%= friend.status %>" id="<%= friend.id %>" onclick="sendrequest(this)"><%= friend.name %></li>
     <% }); %>
   </ul>
-  <hr>
 </body>
 
 </html>

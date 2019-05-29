@@ -8,6 +8,10 @@ const User = new mongoose.Schema({
   status: {
     type: String,
     default: 'offline'
+  },
+  roomid: {
+    type: Schema.Types.ObjectId,
+    default: undefined
   }
 });
 

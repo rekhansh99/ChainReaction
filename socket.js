@@ -1,5 +1,6 @@
 const store = require('./controllers/sessionController').store();
 const User = require('./models/user');
+const GameRoom = require('./models/gameroom');
 
 let io;
 
@@ -21,6 +22,31 @@ module.exports.init = server => {
           id: socket.id,
           status: socket.user.status
         }));
+    });
+
+    socket.on('join game', friend =>
+      socket.to(friend).emit('join game', {
+        name: socket.user.name,
+        id: socket.id
+      }));
+
+    socket.on('accept request', friendId => {
+      const friend = socket.in(friendId);
+
+      const newroom = new GameRoom();
+      newroom.player.push(socket.id);
+      socket.user.roomid = newroom._id;
+      newroom.player.push(friendId);
+      User.findById(friendId, (err, user) => {
+        user.roomid = newroom._id;
+        user.save();
+        newroom.save((err, room) => {
+          socket.to(friend).emit('request accepted', {
+            name: socket.user.name,
+            id: socket.id
+          });
+        });
+      });
     });
   });
 };

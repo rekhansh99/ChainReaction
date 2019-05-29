@@ -10,6 +10,7 @@ const io = require('./socket');
 
 const authRouter = require('./routes/authRoutes');
 const dashboardRouter = require('./routes/dashboardRoutes');
+const gameRouter = require('./routes/gameRoutes');
 
 const User = require('./models/user');
 const authController = require('./controllers/authController');
@@ -49,6 +50,7 @@ app.use(passport.session());
 
 app.use(dashboardRouter);
 app.use('/auth', authRouter);
+app.use('game', gameRouter);
 
 mongoose.connect('mongodb://localhost:27017/ChainReaction', { useNewUrlParser: true })
   .then(result => {

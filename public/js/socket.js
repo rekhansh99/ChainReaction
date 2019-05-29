@@ -9,6 +9,20 @@ socket.on('friend status changed', friend => {
   document.getElementById(friend.id).className = friend.status;
 });
 
-socket.on('message', data => {
-  console.log(data);
+socket.on('join game', friend => {
+  console.log(friend.name + ' requests to join a game!');
+  if (confirm(friend.name + ' requests you to join his game!')) {
+    socket.emit('accept request', friend.id);
+    location.href = 'localhost:3000/game';
+  }
 });
+
+socket.on('request accepted', friend => {
+  console.log('request accepted!');
+  location.href = 'localhost:3000/game';
+});
+
+function sendrequest(friend) {
+  if (friend.className.search('online') !== -1)
+    socket.emit('join game', friend.id);
+}
