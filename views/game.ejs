@@ -5,12 +5,38 @@
   <meta charset="utf-8" />
   <title>Chain Reaction</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" type="text/css" media="screen" href="main.css" />
-  <script src="main.js"></script>
+  <link href="https://fonts.googleapis.com/css?family=Gugi" rel="stylesheet">
+  <link rel="stylesheet" type="text/css" href="/css/main.css" />
+  <script src="/socket.io/socket.io.js"></script>
 </head>
 
 <body>
+  <div class="player <%= color %>" id="me" style="float: left">
+    <img src="<%= picture %>" alt="profile_pic">
+    <p><%= name %></p>
+  </div>
+  <canvas id="game-grid"></canvas>
+  <% if(friend === null) { %>
+  <div class="player blue" id="friend" style="float: right; visibility: hidden">
+    <img alt="profile_pic">
+    <p></p>
+  </div>
 
+  <div id="overlay" style="display:block">
+    <ul id="friends">
+      <% friends.forEach(friend => { %>
+      <li class="<%= friend.status %>" id="<%= friend.id %>" onclick="sendrequest(this)"><%= friend.name %></li>
+      <% }); %>
+    </ul>
+  </div>
+  <% } else { %>
+  <div class="player red" id="friend" style="float: right">
+    <img src="<%= friend.picture %>" alt="profile_pic">
+    <p><%= friend.name %></p>
+  </div>
+  <% } %>
+
+  <script src="/js/game.js"></script>
 </body>
 
 </html>

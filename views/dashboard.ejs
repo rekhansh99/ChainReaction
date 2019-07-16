@@ -9,20 +9,26 @@
   <link href="https://fonts.googleapis.com/css?family=Gugi" rel="stylesheet">
   <link type="text/css" rel="stylesheet" href="/css/main.css">
   <script src="/socket.io/socket.io.js"></script>
-  <script src="/js/socket.js"></script>
 </head>
 
 <body>
-  <div id="profile">
+  <div class="profile">
     <img src="<%= picture %>" alt="profile_pic">
     <p><%= name %></p>
   </div>
   <hr>
-  <ul id="friends">
-    <% friends.forEach(friend => { %>
-    <li class="<%= friend.status %>" id="<%= friend.id %>" onclick="sendrequest(this)"><%= friend.name %></li>
-    <% }); %>
-  </ul>
+  <a id="play" href="/game">Play</a>
+  <script>
+    const socket = io();
+
+    socket.on('join game', (friend, room) => {
+      console.log(friend.name + ' requests to join a game!');
+      if (confirm(friend.name + ' requests you to join his game!')) {
+        socket.emit('accept request', friend.id);
+        location.href = 'game?room=' + room;
+      }
+    });
+  </script>
 </body>
 
 </html>

@@ -13,13 +13,13 @@ socket.on('join game', friend => {
   console.log(friend.name + ' requests to join a game!');
   if (confirm(friend.name + ' requests you to join his game!')) {
     socket.emit('accept request', friend.id);
-    location.href = 'localhost:3000/game';
+    location.href = 'game';
   }
 });
 
 socket.on('request accepted', friend => {
   console.log('request accepted!');
-  location.href = 'localhost:3000/game';
+  location.href = 'game';
 });
 
 function sendrequest(friend) {

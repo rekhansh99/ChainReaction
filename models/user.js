@@ -10,7 +10,7 @@ const User = new mongoose.Schema({
     default: 'offline'
   },
   roomid: {
-    type: Schema.Types.ObjectId,
+    type: String,
     default: undefined
   }
 });

@@ -16,6 +16,8 @@ const User = require('./models/user');
 const authController = require('./controllers/authController');
 const config = require('./config');
 
+const isAuth = require('./middleware/is-auth');
+
 passport.use(new FBStrategy({
   clientID: config.key,
   clientSecret: config.secret,
@@ -50,7 +52,7 @@ app.use(passport.session());
 
 app.use(dashboardRouter);
 app.use('/auth', authRouter);
-app.use('game', gameRouter);
+app.use('/game', isAuth, gameRouter);
 
 mongoose.connect('mongodb://localhost:27017/ChainReaction', { useNewUrlParser: true })
   .then(result => {

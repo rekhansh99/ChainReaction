@@ -1,6 +1,6 @@
 const store = require('./controllers/sessionController').store();
 const User = require('./models/user');
-const GameRoom = require('./models/gameroom');
+const Room = require('./models/gameroom');
 
 let io;
 
@@ -12,42 +12,33 @@ module.exports.init = server => {
   io.use(verifySocket);
 
   io.on('connection', socket => {
-    socket.on('disconnect', () => {
-      socket.user.status = 'offline';
-      socket.user.save();
+    const q = new URL(socket.request.headers.referer);
+    if (q.pathname === '/game') {
+      setStatus(socket, 'ingame');
+      socket.gameroom = q.searchParams.get('room');
+      socket.join(socket.gameroom);
+    }
+    else
+      setStatus(socket, 'online');
 
-      socket.user.friends.forEach(friend =>
-        socket.to(friend).emit('friend status changed', {
-          name: socket.user.name,
-          id: socket.id,
-          status: socket.user.status
-        }));
+    socket.on('disconnect', () => {
+      socket.leave(socket.gameroom);
+      setStatus(socket, 'offline');
     });
 
     socket.on('join game', friend =>
       socket.to(friend).emit('join game', {
         name: socket.user.name,
         id: socket.id
+      }, socket.gameroom));
+
+    socket.on('accept request', friendId =>
+      socket.to(friendId).emit('request accepted', {
+        name: socket.user.name,
+        picture: socket.user.picture,
+        color: 'blue'
       }));
 
-    socket.on('accept request', friendId => {
-      const friend = socket.in(friendId);
-
-      const newroom = new GameRoom();
-      newroom.player.push(socket.id);
-      socket.user.roomid = newroom._id;
-      newroom.player.push(friendId);
-      User.findById(friendId, (err, user) => {
-        user.roomid = newroom._id;
-        user.save();
-        newroom.save((err, room) => {
-          socket.to(friend).emit('request accepted', {
-            name: socket.user.name,
-            id: socket.id
-          });
-        });
-      });
-    });
   });
 };
 
@@ -60,16 +51,6 @@ function verifySocket(socket, next) {
   if (socket.id !== -1)
     User.findById(socket.id, (err, user) => {
       socket.user = user;
-      socket.user.status = 'online';
-      socket.user.save();
-
-      socket.user.friends.forEach(friend =>
-        socket.to(friend).emit('friend status changed', {
-          name: socket.user.name,
-          id: socket.id,
-          status: socket.user.status
-        }));
-
       next();
     });
   else
@@ -94,4 +75,16 @@ function generateId(req) {
     else
       resolve(-1);
   });
+}
+
+function setStatus(socket, status) {
+  socket.user.status = status;
+  socket.user.save();
+
+  socket.user.friends.forEach(friend =>
+    socket.to(friend).emit('friend status changed', {
+      name: socket.user.name,
+      id: socket.id,
+      status: socket.user.status
+    }));
 }
