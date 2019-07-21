@@ -1,19 +1,19 @@
-const mongoose = require('mongoose');
+const rooms = [];
 
-const GameRoom = new mongoose.Schema({
-  _id: String,
-  grid: {
-    type: [[{
-      _id: false,
-      owner: String,
-      atoms: Number
-    }]],
-    default: getDefaultGrid
-  },
-  red: String,
-  blue: String,
-  turn: String
-});
+module.exports = class GameRoom {
+  constructor(id) {
+    this.grid = getDefaultGrid();
+    this.moves = 0;
+    this.red = '';
+    this.blue = '';
+    this.turn = '';
+    rooms[id] = this;
+  }
+
+  static get rooms() {
+    return rooms;
+  }
+};
 
 function getDefaultGrid() {
   const grid = [];
@@ -25,5 +25,3 @@ function getDefaultGrid() {
 
   return grid;
 }
-
-module.exports = mongoose.model('room', GameRoom);
